@@ -61,7 +61,7 @@ class _NoteListState extends State<NoteList> {
       builder: (_){
 
         if(_isLoading){
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator(),);
         }
 
         if(_apiResponse?.error){
@@ -81,6 +81,29 @@ class _NoteListState extends State<NoteList> {
                     context: context,
                     builder: (_)=>NoteDelete()
                 );
+
+                if(result){
+                  final deleteResult= await service.deleteNote(_apiResponse.data[index].noteID);
+                  var message;
+                  if(deleteResult!=null &&deleteResult.data ==true) {
+                    message='The nore was deleted successfully';
+                  }else{
+                     message= deleteResult?.errorMessage ?? 'An error occurred';
+                  }
+
+//                  Scaffold.of(context).showSnackBar(SnackBar(content: Text(message), duration: new Duration(milliseconds: 1000)));
+                  showDialog(context: context, builder: (_)=>AlertDialog(
+                    title: Text('Done'),
+                    content: Text(message),
+                    actions: <Widget>[
+                      FlatButton(child: Text('Ok'), onPressed: (){
+                        Navigator.of(context).pop();
+                      })
+                    ],
+                  ));
+
+                  return deleteResult?.data ??  false;
+                }
                 print(result);
                 return result;
               },
@@ -98,7 +121,9 @@ class _NoteListState extends State<NoteList> {
                 _apiResponse.data[index].createDateTime)}'),
                 onTap: (){
                   Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_)=> NoteModify(noteID: _apiResponse.data[index].noteID,)));
+                      .push(MaterialPageRoute(builder: (_)=> NoteModify(noteID: _apiResponse.data[index].noteID,))).then((data){
+                        _fetchNotes();
+                  });
                 },
               ),
             );
