@@ -3,6 +3,11 @@ import 'package:flutterrestapi/services/notes_service.dart';
 import 'package:flutterrestapi/views/note_list.dart';
 import 'package:get_it/get_it.dart';
 //http://api.notes.programmingaddict.com/swagger/index.html
+/*
+{
+  "apiKey": "444c57f4-e15a-42d2-b870-2fef4dca7358"
+}
+ */
 
 void setupLocator(){
   GetIt.I.registerLazySingleton(() => NotesService());
