@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
       home: NoteList(),
     );
   }
-
 //http://api.notes.programmingaddict.com/swagger/index.html
 //444c57f4-e15a-42d2-b870-2fef4dca7358
 /*
