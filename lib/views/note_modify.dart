@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterrestapi/models/note.dart';
+import 'package:flutterrestapi/models/note_insert.dart';
 import 'package:flutterrestapi/services/notes_service.dart';
 import 'package:get_it/get_it.dart';
 
@@ -60,10 +61,12 @@ class _NoteModifyState extends State<NoteModify> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(isEditing ? 'Edit Note' : 'Create note' )),
+        appBar: AppBar(title: Text(isEditing ? 'Edit Note' : 'Create note')),
         body: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: _isLoading ? Center(child:  CircularProgressIndicator()) :  Column(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
             children: <Widget>[
               TextField(
                 controller: _titleController,
@@ -85,14 +88,51 @@ class _NoteModifyState extends State<NoteModify> {
                 height: 35,
                 child: RaisedButton(
                   child: Text('Submit', style: TextStyle(color: Colors.white)),
-                  color: Theme.of(context).primaryColor,
-                  onPressed: (){
-                    if(isEditing){
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
+                  onPressed: () async {
+                    if (isEditing) {
                       //update note in api
-                    }else{
+                    } else {
                       // create note in api
+                      setState(() {
+                        _isLoading=true;
+                      });
+                      final note = NoteInsert(
+                          noteTitle: _titleController.text,
+                          noteContent: _contentController.text
+                      );
+                      final result = await notesService.createNote(note);
+
+                      setState(() {
+                        _isLoading=false;
+                      });
+
+                      final title = 'Done';
+                      final text = result.error ? (result.errorMessage ??
+                          'An error occurred') : 'Your note was created';
+
+                      showDialog(context: context,
+                          builder: (_) =>
+                              AlertDialog(
+                                title: Text(title),
+                                content: Text(text),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  )
+                                ],
+                              )
+                      ).then((data){
+                        if(result.data){
+                          Navigator.of(context).pop();
+                        }
+                      });
                     }
-                    Navigator.of(context).pop();
                   },
                 ),
               )
